@@ -24,6 +24,7 @@ import { MeasurementSystem } from './measurement.js';
 import { AnnotationSystem } from './annotation.js';
 import { ExportManager } from './export.js';
 import { UIManager } from './ui.js';
+import { LightingSystem } from './lighting.js';
 import { Utils } from './utils.js';
 
 class Inspector3D {
@@ -45,6 +46,7 @@ class Inspector3D {
     this.annotation = null;
     this.export = null;
     this.ui = null;
+    this.lighting = null;
     
     // State
     this.loadedModel = null;
@@ -64,6 +66,10 @@ class Inspector3D {
       
       this.controls = new ControlsManager(this.scene.camera, this.scene.renderer.domElement);
       await this.controls.init();
+      
+      // Initialize lighting system
+      this.lighting = new LightingSystem(this.scene.scene, this.scene.renderer);
+      await this.lighting.init();
       
       // Initialize model loader
       this.modelLoader = new ModelLoader(this.scene.scene);
@@ -85,7 +91,7 @@ class Inspector3D {
       await this.annotation.init();
       
       // Initialize export manager
-      this.export = new ExportManager(this.measurement, this.annotation);
+      this.export = new ExportManager(this.measurement, this.annotation, this.lighting);
       
       // Initialize UI manager
       this.ui = new UIManager();

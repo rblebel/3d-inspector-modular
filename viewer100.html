@@ -60,6 +60,7 @@
     <div class="tools-header">
       <h3>Scene Settings</h3>
     </div>
+    
     <div class="tool-group">
       <label for="mesh-units">Mesh Units:</label>
       <select id="mesh-units">
@@ -69,6 +70,58 @@
         <option value="in">Inches</option>
         <option value="ft">Feet</option>
       </select>
+    </div>
+    
+    <div class="tool-group">
+      <label for="brightness-slider">💡 Brightness:</label>
+      <div class="slider-container">
+        <input type="range" id="brightness-slider" min="0" max="1.0" step="0.01" value="0.5">
+        <span id="brightness-value">0.50</span>
+      </div>
+    </div>
+    
+    <div class="tool-group">
+      <label for="contrast-slider">🌓 Contrast:</label>
+      <div class="slider-container">
+        <input type="range" id="contrast-slider" min="0" max="1.0" step="0.01" value="0.75">
+        <span id="contrast-value">0.75</span>
+      </div>
+    </div>
+    
+    <div class="tool-group">
+      <label for="ambient-slider">🌅 Ambient Light:</label>
+      <div class="slider-container">
+        <input type="range" id="ambient-slider" min="0.0" max="1.0" step="0.05" value="0.5">
+        <span id="ambient-value">0.50</span>
+      </div>
+    </div>
+    
+    <div class="tool-group">
+      <label for="directional-slider">☀️ Directional Light:</label>
+      <div class="slider-container">
+        <input type="range" id="directional-slider" min="0.0" max="1.0" step="0.01" value="0">
+        <span id="directional-value">0.00</span>
+      </div>
+    </div>
+    
+    <div class="tool-group">
+      <label for="light-azimuth-slider">🧭 Light Azimuth (Horizontal):</label>
+      <div class="slider-container">
+        <input type="range" id="light-azimuth-slider" min="0" max="360" step="5" value="45">
+        <span id="light-azimuth-value">45°</span>
+      </div>
+    </div>
+    
+    <div class="tool-group">
+      <label for="light-elevation-slider">📐 Light Elevation (Vertical):</label>
+      <div class="slider-container">
+        <input type="range" id="light-elevation-slider" min="10" max="90" step="5" value="45">
+        <span id="light-elevation-value">45°</span>
+      </div>
+    </div>
+    
+    <div class="tool-group">
+      <button id="reset-lighting" class="settings-btn">🔄 Reset Lighting</button>
     </div>
   </div>
 

@@ -13,15 +13,17 @@
 import { Utils } from './utils.js';
 
 export class ExportManager {
-  constructor(measurementSystem, annotationSystem) {
+  constructor(measurementSystem, annotationSystem, lightingSystem = null) {
     this.measurementSystem = measurementSystem;
     this.annotationSystem = annotationSystem;
+    this.lightingSystem = lightingSystem;
     
     // Export configuration
     this.exportConfig = {
       includeMetadata: true,
       includeStatistics: true,
       includeSystemInfo: true,
+      includeLightingSettings: true,
       prettyFormat: true
     };
   }
@@ -45,6 +47,9 @@ export class ExportManager {
       
       // Annotation data
       annotations: this.getAnnotationData(),
+      
+      // Lighting settings
+      lightingSettings: this.getLightingSettings(),
       
       // Statistics
       statistics: this.generateStatistics(),
@@ -73,7 +78,6 @@ export class ExportManager {
       inspectionDate: new Date().toISOString(),
       units: Utils.getMeshUnits(),
       coordinate_system: 'Right-handed (Y-up)',
-      precision: 'Millimeter accuracy',
       quality_grade: 'Enterprise (A+)'
     };
   }
@@ -152,6 +156,22 @@ export class ExportManager {
       criticality: this.getCriticalityScore(annotation.severity),
       estimatedCost: this.getEstimatedCost(annotation.type, annotation.severity)
     }));
+  }
+
+  /**
+   * Get lighting settings for export
+   */
+  getLightingSettings() {
+    if (!this.lightingSystem) {
+      return {
+        note: 'Lighting settings not available'
+      };
+    }
+    
+    return {
+      ...this.lightingSystem.getSettings(),
+      note: 'These settings can be used to reproduce the visual appearance'
+    };
   }
 
   /**

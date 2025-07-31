@@ -280,7 +280,7 @@ export class AnnotationSystem {
    */
   clearModalFields() {
     const fieldIds = [
-      'annotation-type', 'annotation-severity', 'annotation-description'
+      'annotation-title', 'annotation-type', 'annotation-severity', 'annotation-description'
     ];
     
     fieldIds.forEach(fieldId => {
