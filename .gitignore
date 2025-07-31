@@ -1,0 +1,28 @@
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Test files (optional - you might want to keep wireframe-test.html)
+wireframe-test.html
+
+# Large model files (optional - you might want to include these)
+*.obj
+*.mtl
+*.jpg
+*.png
+
+# Node modules if you add them later
+node_modules/
+
+# Build outputs
+dist/
+build/

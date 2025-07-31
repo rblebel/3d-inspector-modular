@@ -1,0 +1,421 @@
+/* 
+  3D INSPECTOR - MODULAR ARCHITECTURE STYLES
+  Production-ready styles for professional 3D inspection application
+*/
+
+/* =============================
+   GLOBAL LAYOUT & BASE STYLES
+   ============================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background: #f4f6fa;
+}
+
+canvas {
+  display: block;
+}
+
+#canvas-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* =============================
+   TOOLBAR & BUTTONS
+   ============================= */
+#toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 64px;
+  background: rgba(245, 245, 245, 0.98);
+  box-shadow: 2px 0 14px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 12px;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 24px;
+}
+
+.icon-btn:hover:not(.selected) {
+  background: rgba(224, 224, 224, 0.2);
+}
+
+.icon-btn:active {
+  background: rgba(177, 229, 252, 0.2);
+}
+
+.icon-btn.selected {
+  background: #1e88e5;
+  color: white;
+}
+
+/* =============================
+   TOOLS PANEL
+   ============================= */
+#tools-panel {
+  position: absolute;
+  top: 30px;
+  left: 80px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  padding: 14px 20px 8px 20px;
+  z-index: 120;
+  display: none;
+}
+
+#tools-panel.active {
+  display: block;
+}
+
+.tools-header h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.tool-group {
+  margin-bottom: 15px;
+}
+
+.tool-group:last-child {
+  margin-bottom: 0;
+}
+
+#tools-panel label {
+  font-size: 0.97em;
+  margin-bottom: 3px;
+  display: inline-block;
+  color: #555;
+  font-weight: 500;
+}
+
+#tools-panel select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 2px solid #e0e0e0;
+  font-size: 0.95em;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+#tools-panel select:focus {
+  outline: none;
+  border-color: #1e88e5;
+}
+
+/* =============================
+   MEASUREMENT READOUT
+   ============================= */
+#measure-readout {
+  position: absolute;
+  right: 32px;
+  top: 24px;
+  font-size: 1.05em;
+  background: rgba(255, 255, 255, 0.95);
+  color: #13315c;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  display: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  max-width: 350px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* =============================
+   MEASUREMENT LABELS
+   ============================= */
+.measure-label {
+  position: absolute;
+  background: rgba(255, 68, 68, 0.95);
+  color: white;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 0.85em;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 210;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* =============================
+   ANNOTATION ELEMENTS
+   ============================= */
+.annotation-label {
+  position: absolute;
+  background: #fffbe6;
+  color: #333;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.95em;
+  border: 2px solid #ffd600;
+  pointer-events: auto;
+  z-index: 200;
+  white-space: nowrap;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  min-width: 40px;
+  text-align: center;
+}
+
+.annotation-label:hover {
+  background: #fff5a5;
+  border-color: #f57c00;
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.annotation-dot {
+  width: 18px;
+  height: 18px;
+  background: #2196f3;
+  border-radius: 50%;
+  position: absolute;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 202;
+  transform: translate(-50%, -50%);
+  transition: box-shadow 0.1s ease;
+}
+
+.annotation-dot.dragging {
+  box-shadow: 0 0 0 6px rgba(33, 150, 243, 0.4);
+}
+
+/* =============================
+   MODAL STYLES
+   ============================= */
+#annotation-modal,
+#help-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  z-index: 1001;
+  min-width: 520px;
+  max-width: 520px;
+  width: 90%;
+  border: 1px solid #e0e0e0;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: none;
+}
+
+.modal-content h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+}
+
+.form-group select,
+.form-group textarea,
+.form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group select:focus,
+.form-group textarea:focus,
+.form-group input:focus {
+  outline: none;
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-actions button:active {
+  transform: translateY(0);
+}
+
+#save-annotation {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+#cancel-annotation,
+#close-help {
+  background: #6c757d;
+  color: white;
+}
+
+#delete-annotation {
+  background: #dc3545;
+  color: white;
+}
+
+/* =============================
+   HELP MODAL CONTENT
+   ============================= */
+.help-content {
+  line-height: 1.6;
+  color: #555;
+}
+
+.help-content h4 {
+  color: #333;
+  margin: 20px 0 10px 0;
+  font-size: 1.1em;
+}
+
+.help-content h4:first-child {
+  margin-top: 0;
+}
+
+/* =============================
+   LOADING INDICATOR
+   ============================= */
+#loading-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 30px 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1e88e5;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loading-indicator p {
+  margin: 0;
+  color: #666;
+  font-weight: 500;
+}
+
+/* =============================
+   RESPONSIVE DESIGN
+   ============================= */
+@media (max-width: 768px) {
+  #annotation-modal,
+  #help-modal {
+    min-width: auto;
+    width: 95%;
+    max-width: 95%;
+    padding: 20px;
+  }
+  
+  #measure-readout {
+    right: 20px;
+    top: 20px;
+    max-width: 280px;
+  }
+  
+  #tools-panel {
+    left: 70px;
+    min-width: 200px;
+  }
+}
