@@ -8,7 +8,7 @@
  * - Interactive editing and deletion of annotations
  * - Visual representation with color coding by type
  * - Modal UI for annotation details
- * - Real-time label positioning and updates
+ * - Real-time label positioning
  * - Data protection and validation
  */
 
@@ -83,6 +83,8 @@ export class AnnotationSystem {
     const saveBtn = document.getElementById('save-annotation');
     const cancelBtn = document.getElementById('cancel-annotation');
     const deleteBtn = document.getElementById('delete-annotation');
+    const removeLinkBtn = document.getElementById('remove-measurement-link');
+    const closeBtn = modal?.querySelector('.close');
     
     if (saveBtn) {
       saveBtn.addEventListener('click', () => {
@@ -99,6 +101,18 @@ export class AnnotationSystem {
     if (deleteBtn) {
       deleteBtn.addEventListener('click', () => {
         this.deleteAnnotation();
+      });
+    }
+    
+    if (removeLinkBtn) {
+      removeLinkBtn.addEventListener('click', () => {
+        this.removeMeasurementLink();
+      });
+    }
+    
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        this.cancelAnnotation();
       });
     }
     
@@ -241,6 +255,7 @@ export class AnnotationSystem {
   populateModalFields(annotation) {
     const fields = {
       'annotation-id': annotation.id,
+      'annotation-title': annotation.title,
       'annotation-type': annotation.type,
       'annotation-severity': annotation.severity,
       'annotation-description': annotation.description,
@@ -303,25 +318,65 @@ export class AnnotationSystem {
     const linkInfo = document.getElementById('measurement-link-info');
     const linkDetails = document.getElementById('measurement-details');
     
-    if (!linkInfo || !linkDetails || !this.pendingAnnotationPoint) return;
+    if (!linkInfo || !linkDetails) return;
     
-    // Find enclosing measurement if any
-    const enclosingMeasurement = this.findEnclosingMeasurement(this.pendingAnnotationPoint);
+    let linkedMeasurement = null;
     
-    if (enclosingMeasurement) {
+    // Check if editing existing annotation with existing link
+    if (this.editingAnnotationId) {
+      const annotation = this.annotations.find(a => a.id === this.editingAnnotationId);
+      if (annotation && annotation.linkedMeasurement) {
+        linkedMeasurement = annotation.linkedMeasurement;
+      }
+    }
+    
+    // If no existing link and we have a pending point, find new link
+    if (!linkedMeasurement && this.pendingAnnotationPoint) {
+      const measurementMatch = this.findEnclosingMeasurement(this.pendingAnnotationPoint);
+      if (measurementMatch) {
+        linkedMeasurement = measurementMatch;
+      }
+    }
+    
+    if (linkedMeasurement) {
+      const measurement = linkedMeasurement.measurement || linkedMeasurement;
+      const relationship = linkedMeasurement.relationship || 'inside';
+      const distance = linkedMeasurement.distance || 0;
+      
+      let relationshipText = '';
+      if (relationship === 'inside') {
+        relationshipText = '📍 Inside measurement area';
+      } else if (relationship === 'near_line') {
+        relationshipText = `📏 Near measurement line (${Utils.formatDistance(distance, false)} away)`;
+      }
+      
       linkDetails.innerHTML = `
-        <strong>Measurement ${enclosingMeasurement.id}</strong><br>
-        Area: ${Utils.formatArea(enclosingMeasurement.area, false)}<br>
-        Perimeter: ${Utils.formatDistance(enclosingMeasurement.totalDistance, false)}
+        <strong>Measurement ${measurement.id}</strong><br>
+        ${relationshipText}<br>
+        ${measurement.isClosed ? `Area: ${Utils.formatArea(measurement.area, false)}<br>` : ''}
+        Perimeter: ${Utils.formatDistance(measurement.totalDistance, false)}
       `;
       linkInfo.style.display = 'block';
+      
+      // Store the link for saving
+      this.currentMeasurementLink = linkedMeasurement;
     } else {
       linkInfo.style.display = 'none';
+      this.currentMeasurementLink = null;
     }
   }
 
   /**
-   * Find measurement area that encloses the given point
+   * Remove measurement link
+   */
+  removeMeasurementLink() {
+    this.currentMeasurementLink = null;
+    this.updateMeasurementLinkInfo();
+    console.log('🔗 Measurement link removed');
+  }
+
+  /**
+   * Find measurement area that encloses the given point or nearby measurements
    */
   findEnclosingMeasurement(point) {
     // Get measurement system from global app
@@ -330,16 +385,61 @@ export class AnnotationSystem {
     }
     
     const measurements = window.inspector3D.measurement.measurements;
+    let bestMatch = null;
+    let bestDistance = Infinity;
     
     for (const measurement of measurements) {
+      // Check if point is inside closed measurement area
       if (measurement.isClosed && measurement.points.length >= 3) {
         if (Utils.isPointInPolygon(point, measurement.points)) {
-          return measurement;
+          return {
+            measurement: measurement,
+            relationship: 'inside',
+            distance: 0
+          };
         }
+      }
+      
+      // Check distance to measurement lines
+      const lineDistance = this.getDistanceToMeasurementLines(point, measurement);
+      if (lineDistance < 0.5 && lineDistance < bestDistance) { // Within 0.5 units
+        bestMatch = {
+          measurement: measurement,
+          relationship: 'near_line',
+          distance: lineDistance
+        };
+        bestDistance = lineDistance;
       }
     }
     
-    return null;
+    return bestMatch;
+  }
+
+  /**
+   * Calculate distance from point to measurement lines
+   */
+  getDistanceToMeasurementLines(point, measurement) {
+    if (measurement.points.length < 2) return Infinity;
+    
+    let minDistance = Infinity;
+    
+    // Check distance to all line segments
+    for (let i = 1; i < measurement.points.length; i++) {
+      const distance = Utils.distancePointToLine(point, measurement.points[i-1], measurement.points[i]);
+      minDistance = Math.min(minDistance, distance);
+    }
+    
+    // Check closing line if measurement is closed
+    if (measurement.isClosed && measurement.points.length >= 3) {
+      const distance = Utils.distancePointToLine(
+        point, 
+        measurement.points[measurement.points.length - 1], 
+        measurement.points[0]
+      );
+      minDistance = Math.min(minDistance, distance);
+    }
+    
+    return minDistance;
   }
 
   /**
@@ -369,6 +469,7 @@ export class AnnotationSystem {
   collectModalData() {
     return {
       id: document.getElementById('annotation-id')?.value || '',
+      title: document.getElementById('annotation-title')?.value || '',
       type: document.getElementById('annotation-type')?.value || 'corrosion',
       severity: document.getElementById('annotation-severity')?.value || 'Low',
       description: document.getElementById('annotation-description')?.value || '',
@@ -383,6 +484,11 @@ export class AnnotationSystem {
   validateAnnotationData(data) {
     if (!data.id.trim()) {
       alert('Annotation ID is required');
+      return false;
+    }
+    
+    if (!data.title.trim()) {
+      alert('Title is required');
       return false;
     }
     
@@ -405,16 +511,24 @@ export class AnnotationSystem {
     
     const annotation = {
       id: data.id,
+      title: data.title,
       type: data.type,
       severity: data.severity,
       description: data.description,
       ndtRequired: data.ndtRequired,
       absRequired: data.absRequired,
       position: this.pendingAnnotationPoint.clone(),
-      linkedMeasurement: this.findEnclosingMeasurement(this.pendingAnnotationPoint),
+      linkedMeasurement: this.currentMeasurementLink || null,
       createdAt: new Date(),
       color: this.ANNOTATION_COLORS[data.type] || this.ANNOTATION_COLORS['corrosion']
     };
+
+    // Log measurement link if exists
+    if (annotation.linkedMeasurement) {
+      const relationship = annotation.linkedMeasurement.relationship;
+      const measurement = annotation.linkedMeasurement.measurement || annotation.linkedMeasurement;
+      console.log(`🔗 Annotation ${annotation.id} linked to Measurement ${measurement.id} (${relationship})`);
+    }
     
     // Create visual elements
     this.createAnnotationVisuals(annotation);
@@ -423,8 +537,9 @@ export class AnnotationSystem {
     this.annotations.push(annotation);
     this.annotationIdCounter++;
     
-    // Clear pending point
+    // Clear pending point and link
     this.pendingAnnotationPoint = null;
+    this.currentMeasurementLink = null;
     
     console.log(`📍 Created annotation: ${annotation.id}`);
   }
@@ -441,6 +556,7 @@ export class AnnotationSystem {
     
     // Update data
     Object.assign(annotation, {
+      title: data.title,
       type: data.type,
       severity: data.severity,
       description: data.description,
@@ -664,6 +780,7 @@ export class AnnotationSystem {
   getExportData() {
     return this.annotations.map(annotation => ({
       id: annotation.id,
+      title: annotation.title,
       type: annotation.type,
       severity: annotation.severity,
       description: annotation.description,
@@ -675,8 +792,11 @@ export class AnnotationSystem {
         z: annotation.position.z
       },
       linkedMeasurement: annotation.linkedMeasurement ? {
-        id: annotation.linkedMeasurement.id,
-        area: annotation.linkedMeasurement.area
+        measurementId: (annotation.linkedMeasurement.measurement || annotation.linkedMeasurement).id,
+        relationship: annotation.linkedMeasurement.relationship || 'inside',
+        distance: annotation.linkedMeasurement.distance || 0,
+        area: (annotation.linkedMeasurement.measurement || annotation.linkedMeasurement).area,
+        perimeter: (annotation.linkedMeasurement.measurement || annotation.linkedMeasurement).totalDistance
       } : null,
       color: `#${annotation.color.toString(16).padStart(6, '0')}`,
       createdAt: annotation.createdAt.toISOString(),

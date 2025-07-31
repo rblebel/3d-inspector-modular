@@ -76,57 +76,80 @@
   <div id="measure-readout"></div>
 
   <!-- Annotation Modal -->
-  <div id="annotation-modal">
-    <div class="modal-content">
-      <h3 id="modal-title">Add Discrepancy</h3>
-      
-      <div class="form-group">
-        <label for="annotation-id">ID:</label>
-        <input id="annotation-id" type="text" readonly>
+      <div id="annotation-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2 id="modal-title">📍 Add Discrepancy</h2>
+          
+          <form id="annotation-form">
+            <div class="form-group">
+              <label for="annotation-title">Title:</label>
+              <input type="text" id="annotation-title" name="title" placeholder="Brief title for this discrepancy" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="annotation-id">ID:</label>
+              <input type="text" id="annotation-id" name="id" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="annotation-type">Type:</label>
+              <select id="annotation-type" name="type" required>
+                <option value="corrosion">Corrosion</option>
+                <option value="crack">Crack</option>
+                <option value="dent">Dent</option>
+                <option value="coating">Coating Issue</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="annotation-severity">Severity:</label>
+              <select id="annotation-severity" name="severity" required>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="annotation-description">Description:</label>
+              <textarea id="annotation-description" name="description" rows="3" required></textarea>
+            </div>
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="ndt-required" name="ndtRequired">
+                <span class="checkbox-custom">
+                  <span class="checkbox-icon">🔬</span>
+                  NDT Required
+                </span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="abs-required" name="absRequired">
+                <span class="checkbox-custom">
+                  <span class="checkbox-icon">🛡️</span>
+                  ABS Required
+                </span>
+              </label>
+            </div>
+            
+            <!-- Measurement Link Info -->
+            <div id="measurement-link-info" style="display: none;">
+              <h4>🔗 Linked to Measurement</h4>
+              <div id="measurement-details"></div>
+              <button type="button" id="remove-measurement-link" class="btn-small">Remove Link</button>
+            </div>
+          </form>
+          
+          <div class="modal-actions">
+            <button type="button" id="save-annotation">💾 Save</button>
+            <button type="button" id="cancel-annotation">❌ Cancel</button>
+            <button type="button" id="delete-annotation" style="display: none;">🗑️ Delete</button>
+          </div>
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label for="annotation-type">Type:</label>
-        <select id="annotation-type">
-          <option value="corrosion">Corrosion</option>
-          <option value="crack">Crack</option>
-          <option value="pitting">Pitting</option>
-          <option value="structure">Structure</option>
-          <option value="housekeeping">Housekeeping</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="annotation-severity">Severity:</label>
-        <select id="annotation-severity">
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-          <option value="Critical">Critical</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="annotation-description">Description:</label>
-        <textarea id="annotation-description" rows="3" placeholder="Describe the discrepancy..."></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="ndt-required"> NDT Required
-        </label>
-        <label>
-          <input type="checkbox" id="abs-required"> ABS Required
-        </label>
-      </div>
-      
-      <div class="modal-actions">
-        <button id="save-annotation">💾 Save</button>
-        <button id="cancel-annotation">❌ Cancel</button>
-        <button id="delete-annotation" style="display:none;">🗑️ Delete</button>
-      </div>
-    </div>
-  </div>
 
   <!-- Help Modal -->
   <div id="help-modal">

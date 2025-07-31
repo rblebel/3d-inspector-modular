@@ -197,6 +197,24 @@ export class Utils {
   }
 
   /**
+   * Calculate distance from a point to a line segment
+   */
+  static distancePointToLine(point, lineStart, lineEnd) {
+    const line = new THREE.Vector3().subVectors(lineEnd, lineStart);
+    const pointToStart = new THREE.Vector3().subVectors(point, lineStart);
+    
+    const lineLength = line.length();
+    if (lineLength === 0) return point.distanceTo(lineStart);
+    
+    const t = Math.max(0, Math.min(1, pointToStart.dot(line) / (lineLength * lineLength)));
+    const projection = new THREE.Vector3()
+      .copy(lineStart)
+      .add(line.multiplyScalar(t));
+    
+    return point.distanceTo(projection);
+  }
+
+  /**
    * Project 3D point to screen coordinates
    */
   static projectToScreen(point, camera, renderer = null) {
