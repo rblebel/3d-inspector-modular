@@ -13,11 +13,12 @@
 import { Utils } from './utils.js';
 
 export class ExportManager {
-  constructor(measurementSystem, annotationSystem, lightingSystem = null, referenceSystem = null) {
+  constructor(measurementSystem, annotationSystem, lightingSystem = null, referenceSystem = null, himpSystem = null) {
     this.measurementSystem = measurementSystem;
     this.annotationSystem = annotationSystem;
     this.lightingSystem = lightingSystem;
     this.referenceSystem = referenceSystem;
+    this.himpSystem = himpSystem;
     
     // Export configuration
     this.exportConfig = {
@@ -26,6 +27,7 @@ export class ExportManager {
       includeSystemInfo: true,
       includeLightingSettings: true,
       includeReferencePoints: true,
+      includeHimpAssessments: true,
       prettyFormat: true
     };
   }
@@ -52,6 +54,9 @@ export class ExportManager {
       
       // Reference points
       referencePoints: this.getReferenceData(),
+      
+      // HIMP assessments
+      himpAssessments: this.getHimpData(),
       
       // Lighting settings
       lightingSettings: this.getLightingSettings(),
@@ -179,6 +184,30 @@ export class ExportManager {
       coordinate_system: 'Right-handed (Y-up)',
       units: Utils.getMeshUnits(),
       note: 'Reference points establish coordinate datums for this inspection'
+    };
+  }
+
+  /**
+   * Get HIMP assessment data for export
+   */
+  getHimpData() {
+    if (!this.himpSystem) {
+      return {
+        assessments: [],
+        note: 'HIMP assessment system not available'
+      };
+    }
+    
+    const data = this.himpSystem.getExportData();
+    
+    // Add additional metadata for HIMP assessments
+    return {
+      assessments: data.himpAssessments || [],
+      coordinate_system: 'Right-handed (Y-up)',
+      units: Utils.getMeshUnits(),
+      scoring_system: 'ABS HIMP (0-6 scale)',
+      recoat_threshold: 'Any score ≥ 2 recommends recoating',
+      note: 'Hull Inspection and Maintenance Program surface condition assessments'
     };
   }
 

@@ -23,6 +23,7 @@ import { ModelLoader } from './modelLoader.js';
 import { MeasurementSystem } from './measurement.js';
 import { AnnotationSystem } from './annotation.js';
 import { ReferenceSystem } from './reference.js';
+import { HIMPSystem } from './himp.js';
 import { ExportManager } from './export.js';
 import { UIManager } from './ui.js';
 import { LightingSystem } from './lighting.js';
@@ -45,6 +46,8 @@ class Inspector3D {
     this.modelLoader = null;
     this.measurement = null;
     this.annotation = null;
+    this.reference = null;
+    this.himp = null;
     this.export = null;
     this.ui = null;
     this.lighting = null;
@@ -99,8 +102,16 @@ class Inspector3D {
       );
       await this.reference.init();
       
+      // Initialize HIMP assessment system
+      this.himp = new HIMPSystem(
+        this.scene.scene, 
+        this.scene.camera, 
+        this.scene.renderer
+      );
+      await this.himp.init();
+      
       // Initialize export manager
-      this.export = new ExportManager(this.measurement, this.annotation, this.lighting, this.reference);
+      this.export = new ExportManager(this.measurement, this.annotation, this.lighting, this.reference, this.himp);
       
       // Initialize UI manager
       this.ui = new UIManager();
@@ -143,6 +154,10 @@ class Inspector3D {
     
     document.getElementById('referenceBtn').addEventListener('click', () => {
       this.toggleReferenceMode();
+    });
+    
+    document.getElementById('himpBtn').addEventListener('click', () => {
+      this.toggleHimpMode();
     });
     
     document.getElementById('wireBtn').addEventListener('click', () => {
@@ -354,10 +369,12 @@ class Inspector3D {
       this.currentMode = 'measure';
       this.annotation.deactivate();
       this.reference.deactivate();
+      this.himp.deactivate();
       this.measurement.activate();
       this.ui.setButtonActive('measureBtn', true);
       this.ui.setButtonActive('annotateBtn', false);
       this.ui.setButtonActive('referenceBtn', false);
+      this.ui.setButtonActive('himpBtn', false);
     }
   }
 
@@ -373,10 +390,12 @@ class Inspector3D {
       this.currentMode = 'annotate';
       this.measurement.deactivate();
       this.reference.deactivate();
+      this.himp.deactivate();
       this.annotation.activate();
       this.ui.setButtonActive('annotateBtn', true);
       this.ui.setButtonActive('measureBtn', false);
       this.ui.setButtonActive('referenceBtn', false);
+      this.ui.setButtonActive('himpBtn', false);
     }
   }
 
@@ -392,10 +411,33 @@ class Inspector3D {
       this.currentMode = 'reference';
       this.measurement.deactivate();
       this.annotation.deactivate();
+      this.himp.deactivate();
       this.reference.activate();
       this.ui.setButtonActive('referenceBtn', true);
       this.ui.setButtonActive('measureBtn', false);
       this.ui.setButtonActive('annotateBtn', false);
+      this.ui.setButtonActive('himpBtn', false);
+    }
+  }
+
+  /**
+   * Toggle HIMP assessment mode
+   */
+  toggleHimpMode() {
+    if (this.currentMode === 'himp') {
+      this.currentMode = 'view';
+      this.himp.deactivate();
+      this.ui.setButtonActive('himpBtn', false);
+    } else {
+      this.currentMode = 'himp';
+      this.measurement.deactivate();
+      this.annotation.deactivate();
+      this.reference.deactivate();
+      this.himp.activate();
+      this.ui.setButtonActive('himpBtn', true);
+      this.ui.setButtonActive('measureBtn', false);
+      this.ui.setButtonActive('annotateBtn', false);
+      this.ui.setButtonActive('referenceBtn', false);
     }
   }
 
@@ -552,6 +594,11 @@ class Inspector3D {
       // Update reference system
       if (this.reference) {
         this.reference.updateLabelPositions();
+      }
+      
+      // Update HIMP system
+      if (this.himp) {
+        this.himp.updateLabelPositions();
       }
       
       // Render the scene
