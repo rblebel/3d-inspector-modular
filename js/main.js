@@ -22,6 +22,7 @@ import { ControlsManager } from './controls.js';
 import { ModelLoader } from './modelLoader.js';
 import { MeasurementSystem } from './measurement.js';
 import { AnnotationSystem } from './annotation.js';
+import { ReferenceSystem } from './reference.js';
 import { ExportManager } from './export.js';
 import { UIManager } from './ui.js';
 import { LightingSystem } from './lighting.js';
@@ -90,8 +91,16 @@ class Inspector3D {
       );
       await this.annotation.init();
       
+      // Initialize reference system
+      this.reference = new ReferenceSystem(
+        this.scene.scene, 
+        this.scene.camera, 
+        this.scene.renderer
+      );
+      await this.reference.init();
+      
       // Initialize export manager
-      this.export = new ExportManager(this.measurement, this.annotation, this.lighting);
+      this.export = new ExportManager(this.measurement, this.annotation, this.lighting, this.reference);
       
       // Initialize UI manager
       this.ui = new UIManager();
@@ -130,6 +139,10 @@ class Inspector3D {
     
     document.getElementById('annotateBtn').addEventListener('click', () => {
       this.toggleAnnotationMode();
+    });
+    
+    document.getElementById('referenceBtn').addEventListener('click', () => {
+      this.toggleReferenceMode();
     });
     
     document.getElementById('wireBtn').addEventListener('click', () => {
@@ -192,8 +205,17 @@ class Inspector3D {
           this.toggleFullscreen();
           break;
         case 'r':
-          e.preventDefault();
-          this.resetView();
+          if (e.ctrlKey || e.metaKey) {
+            // Ctrl+R: Open Reference Manager
+            e.preventDefault();
+            if (this.reference) {
+              this.reference.showReferenceManager();
+            }
+          } else {
+            // R: Reset View
+            e.preventDefault();
+            this.resetView();
+          }
           break;
         case 'w':
           e.preventDefault();
@@ -331,9 +353,11 @@ class Inspector3D {
     } else {
       this.currentMode = 'measure';
       this.annotation.deactivate();
+      this.reference.deactivate();
       this.measurement.activate();
       this.ui.setButtonActive('measureBtn', true);
       this.ui.setButtonActive('annotateBtn', false);
+      this.ui.setButtonActive('referenceBtn', false);
     }
   }
 
@@ -348,9 +372,30 @@ class Inspector3D {
     } else {
       this.currentMode = 'annotate';
       this.measurement.deactivate();
+      this.reference.deactivate();
       this.annotation.activate();
       this.ui.setButtonActive('annotateBtn', true);
       this.ui.setButtonActive('measureBtn', false);
+      this.ui.setButtonActive('referenceBtn', false);
+    }
+  }
+
+  /**
+   * Toggle reference point mode
+   */
+  toggleReferenceMode() {
+    if (this.currentMode === 'reference') {
+      this.currentMode = 'view';
+      this.reference.deactivate();
+      this.ui.setButtonActive('referenceBtn', false);
+    } else {
+      this.currentMode = 'reference';
+      this.measurement.deactivate();
+      this.annotation.deactivate();
+      this.reference.activate();
+      this.ui.setButtonActive('referenceBtn', true);
+      this.ui.setButtonActive('measureBtn', false);
+      this.ui.setButtonActive('annotateBtn', false);
     }
   }
 
@@ -502,6 +547,11 @@ class Inspector3D {
       // Update annotation system
       if (this.annotation) {
         this.annotation.update();
+      }
+      
+      // Update reference system
+      if (this.reference) {
+        this.reference.updateLabelPositions();
       }
       
       // Render the scene

@@ -13,10 +13,11 @@
 import { Utils } from './utils.js';
 
 export class ExportManager {
-  constructor(measurementSystem, annotationSystem, lightingSystem = null) {
+  constructor(measurementSystem, annotationSystem, lightingSystem = null, referenceSystem = null) {
     this.measurementSystem = measurementSystem;
     this.annotationSystem = annotationSystem;
     this.lightingSystem = lightingSystem;
+    this.referenceSystem = referenceSystem;
     
     // Export configuration
     this.exportConfig = {
@@ -24,6 +25,7 @@ export class ExportManager {
       includeStatistics: true,
       includeSystemInfo: true,
       includeLightingSettings: true,
+      includeReferencePoints: true,
       prettyFormat: true
     };
   }
@@ -47,6 +49,9 @@ export class ExportManager {
       
       // Annotation data
       annotations: this.getAnnotationData(),
+      
+      // Reference points
+      referencePoints: this.getReferenceData(),
       
       // Lighting settings
       lightingSettings: this.getLightingSettings(),
@@ -156,6 +161,25 @@ export class ExportManager {
       criticality: this.getCriticalityScore(annotation.severity),
       estimatedCost: this.getEstimatedCost(annotation.type, annotation.severity)
     }));
+  }
+
+  /**
+   * Get reference points data for export
+   */
+  getReferenceData() {
+    if (!this.referenceSystem) {
+      return [];
+    }
+    
+    const data = this.referenceSystem.getExportData();
+    
+    // Add additional metadata for reference points
+    return {
+      points: data.referencePoints || [],
+      coordinate_system: 'Right-handed (Y-up)',
+      units: Utils.getMeshUnits(),
+      note: 'Reference points establish coordinate datums for this inspection'
+    };
   }
 
   /**
