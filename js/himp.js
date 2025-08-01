@@ -135,7 +135,7 @@ export class HIMPSystem {
       <div id="himp-modal" class="modal">
         <div id="himp-modal-content" class="himp-modal-content">
           <span class="close">&times;</span>
-          <h2 id="himp-modal-title">📊 HIMP Surface Assessment</h2>
+          <h2 id="himp-modal-title">� HIMP Surface Assessment</h2>
           
           <form id="himp-form">
             <div class="form-group">
@@ -219,7 +219,7 @@ export class HIMPSystem {
       <div id="himp-manager-modal" class="modal">
         <div id="himp-manager-content" class="himp-manager-modal-content">
           <span class="close">&times;</span>
-          <h2>📊 HIMP Assessments Manager</h2>
+          <h2>� HIMP Assessments Manager</h2>
           
           <div class="himp-manager-content">
             <div class="himp-stats-bar">
@@ -886,7 +886,7 @@ export class HIMPSystem {
     document.getElementById('create-discrepancy-from-himp').style.display = 'inline-block';
     
     // Update modal title
-    document.getElementById('himp-modal-title').textContent = '📊 Edit HIMP Assessment';
+    document.getElementById('himp-modal-title').textContent = '� Edit HIMP Assessment';
     
     // Update recommendation display
     this.updateRecommendation();
@@ -984,13 +984,13 @@ export class HIMPSystem {
     
     if (count === 0) {
       readout.innerHTML = `
-        <strong>📊 HIMP Assessment Mode</strong><br>
+        <strong>� HIMP Assessment Mode</strong><br>
         <small>Click on surfaces to assess coating condition<br>
         Ctrl+H: HIMP Manager | ESC: Cancel</small>
       `;
     } else {
       readout.innerHTML = `
-        <strong>📊 HIMP Assessments: ${count}</strong><br>
+        <strong>� HIMP Assessments: ${count}</strong><br>
         <small>⚠️ ${recoatCount} require recoating<br>
         Click labels to edit | Ctrl+H: Manager</small>
       `;
